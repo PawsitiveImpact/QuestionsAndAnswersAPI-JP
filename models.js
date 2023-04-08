@@ -2,6 +2,13 @@ const db = require('./dbconnection.js');
 
 module.exports = {
   getTwoQuestions: (callback) => {
-    console.log("hello, I'm a model.");
+    var queryStr = 'SELECT * FROM questions LIMIT 2';
+    db.query(queryStr, (err, data) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, data);
+      }
+    });
   }
 }
