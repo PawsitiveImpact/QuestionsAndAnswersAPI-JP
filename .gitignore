@@ -1,0 +1,4 @@
+node_modules/
+rawCSVs/
+.csv
+.env
