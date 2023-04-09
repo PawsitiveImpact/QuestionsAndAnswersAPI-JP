@@ -14,26 +14,28 @@ module.exports = {
 
   getAllQuestions: (product_id, callback) => {
     console.log("got to models.getAllQuestions with this: ", product_id);
-    // var queryStr = 'SELECT * FROM questions LIMIT 2';
-    // db.query(queryStr, (err, data) => {
-    //   if (err) {
-    //     callback(err);
-    //   } else {
-    //     callback(null, data);
-    //   }
-    // });
+    var queryStr = 'SELECT * FROM questions WHERE product_id = $1 AND reported = false';
+    var values = [product_id]
+    db.query(queryStr, values, (err, data) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, data);
+      }
+    });
   },
 
   getAllAnswers: (question_id, callback) => {
     console.log("got to models.getAllAnswers with this: ", question_id);
-    // var queryStr = 'SELECT * FROM questions LIMIT 2';
-    // db.query(queryStr, (err, data) => {
-    //   if (err) {
-    //     callback(err);
-    //   } else {
-    //     callback(null, data);
-    //   }
-    // });
+    var queryStr = 'SELECT * FROM answers WHERE question_id = $1 AND reported = false';
+    var values = [question_id]
+    db.query(queryStr, values, (err, data) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, data);
+      }
+    });
   },
 
   postQuestion: (questionObj, callback) => {
