@@ -25,11 +25,11 @@ module.exports = {
   getAllAnswers: (req, res) => {
     console.log("got to getAllAnswers with this question_id: ", req.params.question_id);
 
-    models.getAllAnswers(req.params.question_id, (err, data) => {
+    models.getAllAnswers(req.params.question_id, (err, reshapedData) => {
       if(err){
         console.log(err);
       } else {
-        res.json(data.rows);
+        res.json(reshapedData);
       }
     });
   },

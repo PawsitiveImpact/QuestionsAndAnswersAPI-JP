@@ -33,7 +33,25 @@ module.exports = {
       if (err) {
         callback(err);
       } else {
-        callback(null, data);
+        var reshapedData = [];
+        var dateConverter = (utcSeconds) => {
+          var newDate = new Date(utcSeconds*1000);
+          // var newDate = new Date(0);
+          // newDate.setUTCSeconds(utcSeconds);
+          return newDate;
+        }
+        data.rows.forEach(row => {
+          var reshapedRow = {
+            answer_id: row.id,
+            body:row.body,
+            date:dateConverter(row.date_written),
+            answerer_name:row.answerer_name,
+            helpfulness:row.helpful,
+            photos:[]
+          };
+          reshapedData.push(reshapedRow);
+        });
+        callback(null, reshapedData);
       }
     });
   },
