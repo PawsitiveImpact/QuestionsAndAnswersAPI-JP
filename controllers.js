@@ -1,23 +1,17 @@
 const models = require("./models.js");
 
 module.exports = {
-  getTwo: (req, res) => {
-    models.getTwoQuestions((err, data) => {
+
+  getAllQuestions: (req, res) => {
+    console.log("got to getAllQuestions with this product id: ", req.query.product_id);
+    var product_id = req.query.product_id;
+    var page = req.query.page || 0;
+    var count = req.query.count || 5;
+    models.getAllQuestions(product_id, page, count, (err, data) => {
       if(err){
         console.log(err);
       } else {
         res.json(data);
-      }
-    });
-  },
-
-  getAllQuestions: (req, res) => {
-    console.log("got to getAllQuestions with this product id: ", req.params.product_id);
-    models.getAllQuestions(req.params.product_id, (err, data) => {
-      if(err){
-        console.log(err);
-      } else {
-        res.json(data.rows);
       }
     });
   },

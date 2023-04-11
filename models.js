@@ -1,33 +1,35 @@
 const db = require('./dbconnection.js');
 
 module.exports = {
-  getTwoQuestions: (callback) => {
-    var queryStr = 'SELECT * FROM questions LIMIT 2';
-    db.query(queryStr, (err, data) => {
-      if (err) {
-        callback(err);
-      } else {
-        callback(null, data);
-      }
-    });
-  },
 
-  getAllQuestions: (product_id, callback) => {
-    console.log("got to models.getAllQuestions with this: ", product_id);
-    var queryStr = 'SELECT * FROM questions WHERE product_id = $1 AND reported = false';
-    var values = [product_id]
+  getAllQuestions: (product_id, page, count, callback) => {
+    // TODO: Add answers here and change column names to match legacy.
+    var limitStart = page * count;
+    var queryStr = `
+                    SELECT * FROM questions
+                    WHERE product_id = $1 AND reported = false
+                    ORDER BY helpful DESC
+                    OFFSET $2
+                    LIMIT $3
+      `;
+    var values = [product_id, limitStart, count];
     db.query(queryStr, values, (err, data) => {
       if (err) {
         callback(err);
       } else {
-
-        callback(null, data);
+        var reshapedData = {
+          product_id: product_id,
+          page:page,
+          count:count,
+          results:data.rows
+        };
+        callback(null, reshapedData);
       }
     });
   },
 
   getAllAnswers: (question_id, page, count, callback) => {
-    console.log("got to models.getAllAnswers with this question_id, page, and count: ", question_id, page, count);
+    // TODO: Add photos
     var limitStart = page * count;
     // Get everything besides the photos
     var queryStr = `SELECT a.id, a.body, a.date_written, a.answerer_name, a.helpful

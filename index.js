@@ -8,7 +8,7 @@ app.use(express.json());
 
 
 // Basic Routes
-app.get('/qa/questions/:product_id', controllers.getAllQuestions);
+app.get('/qa/questions/', controllers.getAllQuestions);
 app.get('/qa/questions/:question_id/answers', controllers.getAllAnswers);
 
 app.post('/qa/questions', controllers.postQuestion);
