@@ -27,13 +27,24 @@ module.exports = {
 
   getAllAnswers: (question_id, callback) => {
     console.log("got to models.getAllAnswers with this: ", question_id);
-    var queryStr = 'SELECT * FROM answers WHERE question_id = $1 AND reported = false';
+
+
+    // Get everything besides the photos
+    var queryStr = `SELECT a.id, a.body, a.date_written, a.answerer_name, a.helpful
+                    FROM answers AS a
+                    WHERE a.question_id = $1 AND a.reported = false
+                    ORDER BY a.helpful DESC`;
     var values = [question_id]
     db.query(queryStr, values, (err, data) => {
       if (err) {
         callback(err);
       } else {
-        var reshapedData = [];
+        var reshapedData = {
+          question: question_id,
+          page:0,
+          count:5,
+          results:[]
+        };
         var dateConverter = (utcSeconds) => {
           var newDate = new Date(utcSeconds*1000);
           // var newDate = new Date(0);
@@ -46,15 +57,58 @@ module.exports = {
             body:row.body,
             date:dateConverter(row.date_written),
             answerer_name:row.answerer_name,
-            helpfulness:row.helpful,
-            photos:[]
+            helpfulness:row.helpful
           };
-          reshapedData.push(reshapedRow);
+          reshapedData.results.push(reshapedRow);
         });
         callback(null, reshapedData);
       }
     });
   },
+    //     .then(reshapedData => {
+  //       reshapedData.results.forEach(row => {
+  //         var insideQuery = 'SELECT id, url FROM answers_photos WHERE answer_id = $1'
+  //         var insideValues = [row.answer_id];
+  //         db.query(insideQuery, insideValues)
+  //           .then(photosData => {
+  //           console.log("photosData.rows for row.id, ", row.id, ": ", photosData.rows);
+  //           // photosData.rows.forEach
+  //           var photosArray = [...photosData.rows ]
+  //           row.photos = photosArray;
+  //           // reshapedRow.photos = "something";
+  //           console.log("reshapedData: ", reshapedData);
+  //         })
+  //       })
+  //     .catch(err => {
+  //       console.log(err);
+  //     })
+  // } )
+      //   }
+      //     )
+
+      // })
+
+      //     db.query(insideQuery, insideValues)
+      //       .then(photosData => {
+      //         console.log("photosData.rows for row.id, ", row.id, ": ", photosData.rows);
+      //         // photosData.rows.forEach
+      //         var photosArray = [...photosData.rows ]
+      //         reshapedRow.photos = photosArray;
+      //         // reshapedRow.photos = "something";
+      //         console.log("reshapedRow: ", reshapedRow);
+
+      //       })
+      //       .then(() => {
+
+      //       })
+      //       .catch(err => {
+      //         console.log(err);
+      //       })
+  // //
+  // , (err, data) => {
+  //   if (err) {
+  //     callback(err);
+  //   } else {
 
   postQuestion: (questionObj, callback) => {
     console.log("got to models.postQuestion with this questionObj: ", questionObj);
