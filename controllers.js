@@ -25,7 +25,9 @@ module.exports = {
   getAllAnswers: (req, res) => {
     console.log("got to getAllAnswers with this question_id: ", req.params.question_id);
     console.log('request.query: ', req.query);
-    models.getAllAnswers(req.params.question_id, req.query.page, req.query.count, (err, reshapedData) => {
+    var page = req.query.page || 0;
+    var count = req.query.count || 5;
+    models.getAllAnswers(req.params.question_id, page , count, (err, reshapedData) => {
       if(err){
         console.log(err);
       } else {

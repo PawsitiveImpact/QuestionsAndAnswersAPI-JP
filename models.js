@@ -20,6 +20,7 @@ module.exports = {
       if (err) {
         callback(err);
       } else {
+
         callback(null, data);
       }
     });
@@ -42,8 +43,8 @@ module.exports = {
       } else {
         var reshapedData = {
           question: question_id,
-          page:0,
-          count:5,
+          page:page,
+          count:count,
           results:[]
         };
         var dateConverter = (utcSeconds) => {
