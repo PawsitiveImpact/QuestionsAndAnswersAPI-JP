@@ -149,26 +149,28 @@ module.exports = {
 
   putHelpfulA:(answer_id, callback) => {
     console.log("got to models.putHelpfulA with this answer_id: ", answer_id);
-    // var queryStr = 'SELECT * FROM questions LIMIT 2';
-    // db.query(queryStr, (err, data) => {
-    //   if (err) {
-    //     callback(err);
-    //   } else {
-    //     callback(null, data);
-    //   }
-    // });
+    var queryStr = `UPDATE answers SET helpful = helpful + 1 WHERE id = $1`;
+    var value = [answer_id]
+    db.query(queryStr, value, (err, data) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, data);
+      }
+    });
   },
 
   putReportA:(answer_id, callback) => {
     console.log("got to models.putReportA with this answer_id: ", answer_id);
-    // var queryStr = 'SELECT * FROM questions LIMIT 2';
-    // db.query(queryStr, (err, data) => {
-    //   if (err) {
-    //     callback(err);
-    //   } else {
-    //     callback(null, data);
-    //   }
-    // });
+    var queryStr = `UPDATE answers SET reported = true WHERE id = $1`;
+    var value = [answer_id]
+    db.query(queryStr, value, (err, data) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, data);
+      }
+    });
   }
 
 };
