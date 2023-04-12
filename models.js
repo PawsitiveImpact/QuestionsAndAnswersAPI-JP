@@ -31,9 +31,23 @@ module.exports = {
     var limitStart = page * count;
     // Get everything besides the photos
     // TODO: Add photos
-    var queryStr = `SELECT a.id, a.body, a.date_written, a.answerer_name, a.helpful
+    var queryStr = `SELECT
+                        a.id as answer_id,
+                        a.body,
+                        a.date_written as date,
+                        a.answerer_name,
+                        a.helpful as helpfulness,
+                        jsonb_agg(
+                          jsonb_build_object(
+                             'id', p.id,
+                             'url',p.url
+                          )
+                        ) AS photos
                     FROM answers AS a
+                    LEFT JOIN answers_photos AS p
+                    ON a.id = p.answer_id
                     WHERE a.question_id = $1 AND a.reported = false
+                    GROUP BY a.id
                     ORDER BY a.helpful DESC
                     OFFSET $2
                     LIMIT $3`;
@@ -46,24 +60,19 @@ module.exports = {
           question: question_id,
           page:page,
           count:count,
-          results:[]
+          results:data.rows
         };
-        var dateConverter = (utcSeconds) => {
-          var newDate = new Date(utcSeconds*1000);
-          // var newDate = new Date(0);
-          // newDate.setUTCSeconds(utcSeconds);
-          return newDate;
-        }
-        data.rows.forEach(row => {
-          var reshapedRow = {
-            answer_id: row.id,
-            body:row.body,
-            date:dateConverter(row.date_written),
-            answerer_name:row.answerer_name,
-            helpfulness:row.helpful
-          };
-          reshapedData.results.push(reshapedRow);
-        });
+
+        // data.rows.forEach(row => {
+        //   var reshapedRow = {
+        //     answer_id: row.id,
+        //     body:row.body,
+        //     date:dateConverter(row.date_written),
+        //     answerer_name:row.answerer_name,
+        //     helpfulness:row.helpful
+        //   };
+        //   reshapedData.results.push(reshapedRow);
+        // });
         callback(null, reshapedData);
       }
     });
