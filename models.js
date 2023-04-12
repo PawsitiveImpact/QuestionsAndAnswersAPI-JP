@@ -5,9 +5,32 @@ module.exports = {
     // TODO: Add answers here (or call answers fn from controllers?) and change column names to match legacy.
     var limitStart = page * count;
     var queryStr = `
-                    SELECT * FROM questions
-                    WHERE product_id = $1 AND reported = false
-                    ORDER BY helpful DESC
+                    SELECT
+                       q.id as question_id,
+                       q.body as question_body,
+                       q.date_written as question_date,
+                       q.asker_name,
+                       q.helpful as question_helpfulness,
+                       q.reported,
+                       jsonb_object_agg(
+                        a.id,
+                          jsonb_build_object(
+                            'id', a.id,
+                            'body', a.body,
+                            'date', a.date_written,
+                            'answerer_name', a.answerer_name,
+                            'helpfulness', a.helpful
+                          )
+                       ) FILTER (WHERE q.id = a.question_id)
+                        as answers
+                    FROM questions AS q
+                    JOIN answers AS a
+                    ON q.id = a.question_id
+                    LEFT JOIN answers_photos AS p
+                    ON a.id = p.answer_id
+                    WHERE q.product_id = $1 AND q.reported = false
+                    GROUP BY q.id
+                    ORDER BY q.helpful DESC
                     OFFSET $2
                     LIMIT $3
       `;
