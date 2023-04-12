@@ -1,9 +1,8 @@
 const db = require('./dbconnection.js');
 
 module.exports = {
-
   getAllQuestions: (product_id, page, count, callback) => {
-    // TODO: Add answers here and change column names to match legacy.
+    // TODO: Add answers here (or call answers fn from controllers?) and change column names to match legacy.
     var limitStart = page * count;
     var queryStr = `
                     SELECT * FROM questions
@@ -29,9 +28,9 @@ module.exports = {
   },
 
   getAllAnswers: (question_id, page, count, callback) => {
-    // TODO: Add photos
     var limitStart = page * count;
     // Get everything besides the photos
+    // TODO: Add photos
     var queryStr = `SELECT a.id, a.body, a.date_written, a.answerer_name, a.helpful
                     FROM answers AS a
                     WHERE a.question_id = $1 AND a.reported = false
@@ -73,26 +72,53 @@ module.exports = {
 
   postQuestion: (questionObj, callback) => {
     console.log("got to models.postQuestion with this questionObj: ", questionObj);
-    // var queryStr = 'SELECT * FROM questions LIMIT 2';
-    // db.query(queryStr, (err, data) => {
-    //   if (err) {
-    //     callback(err);
-    //   } else {
-    //     callback(null, data);
-    //   }
-    // });
+    var queryStr = `INSERT INTO questions VALUES(
+      (SELECT MAX(id)+1 FROM questions),
+      $1, $2,
+      (select extract(epoch from now())*1000),
+      $3, $4, $5, $6
+      )`;
+    var values = [
+      questionObj.product_id, //$1
+      questionObj.body, //$2
+      questionObj.name, //$3
+      questionObj.email, //$4
+      false, //$5 (not reported yet)
+      0 // $6 (not helpful yet)
+    ];
+    db.query(queryStr, values, (err, data) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, data);
+      }
+    });
   },
 
   postAnswer: (answerObj, question_id, callback) => {
     console.log("got to models.postQuestion with this answerObj: ", answerObj, " and this question_id: ", question_id);
-    // var queryStr = 'SELECT * FROM questions LIMIT 2';
-    // db.query(queryStr, (err, data) => {
-    //   if (err) {
-    //     callback(err);
-    //   } else {
-    //     callback(null, data);
-    //   }
-    // });
+
+    var queryStr = `INSERT INTO answers VALUES(
+      (SELECT MAX(id)+1 FROM answers),
+      $1, $2,
+      (select extract(epoch from now())*1000),
+      $3, $4, $5, $6
+      )`;
+    var values = [
+      question_id, //$1
+      answerObj.body, //$2
+      answerObj.name, //$3
+      answerObj.email, //$4
+      false, //$5 (not reported yet)
+      0 // $6 (not helpful yet)
+    ];
+    db.query(queryStr, values, (err, data) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, data);
+      }
+    });
   },
 
   putHelpfulQ:(question_id, callback) => {
@@ -142,53 +168,5 @@ module.exports = {
     //   }
     // });
   }
-
-
-  // getNeededPhotos: (answer_id, callback) => {
-  // }
-    //     .then(reshapedData => {
-  //       reshapedData.results.forEach(row => {
-  //         var insideQuery = 'SELECT id, url FROM answers_photos WHERE answer_id = $1'
-  //         var insideValues = [row.answer_id];
-  //         db.query(insideQuery, insideValues)
-  //           .then(photosData => {
-  //           console.log("photosData.rows for row.id, ", row.id, ": ", photosData.rows);
-  //           // photosData.rows.forEach
-  //           var photosArray = [...photosData.rows ]
-  //           row.photos = photosArray;
-  //           // reshapedRow.photos = "something";
-  //           console.log("reshapedData: ", reshapedData);
-  //         })
-  //       })
-  //     .catch(err => {
-  //       console.log(err);
-  //     })
-  // } )
-      //   }
-      //     )
-
-      // })
-
-      //     db.query(insideQuery, insideValues)
-      //       .then(photosData => {
-      //         console.log("photosData.rows for row.id, ", row.id, ": ", photosData.rows);
-      //         // photosData.rows.forEach
-      //         var photosArray = [...photosData.rows ]
-      //         reshapedRow.photos = photosArray;
-      //         // reshapedRow.photos = "something";
-      //         console.log("reshapedRow: ", reshapedRow);
-
-      //       })
-      //       .then(() => {
-
-      //       })
-      //       .catch(err => {
-      //         console.log(err);
-      //       })
-  // //
-  // , (err, data) => {
-  //   if (err) {
-  //     callback(err);
-  //   } else {
 
 };

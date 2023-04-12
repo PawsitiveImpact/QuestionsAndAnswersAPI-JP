@@ -11,7 +11,7 @@ app.use(express.json());
 app.get('/qa/questions/', controllers.getAllQuestions);
 app.get('/qa/questions/:question_id/answers', controllers.getAllAnswers);
 
-app.post('/qa/questions', controllers.postQuestion);
+app.post('/qa/questions/', controllers.postQuestion);
 app.post('/qa/questions/:question_id/answers', controllers.postAnswer);
 
 app.put('/qa/questions/:question_id/helpful', controllers.putHelpfulQ);
