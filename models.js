@@ -2,7 +2,6 @@ const db = require('./dbconnection.js');
 
 module.exports = {
   getAllQuestions: (product_id, page, count, callback) => {
-    // TODO: Add answers here (or call answers fn from controllers?) and change column names to match legacy.
     var limitStart = page * count;
     var queryStr = `
                     SELECT
@@ -52,8 +51,6 @@ module.exports = {
 
   getAllAnswers: (question_id, page, count, callback) => {
     var limitStart = page * count;
-    // Get everything besides the photos
-    // TODO: Add photos
     var queryStr = `SELECT
                         a.id as answer_id,
                         a.body,
@@ -85,17 +82,6 @@ module.exports = {
           count:count,
           results:data.rows
         };
-
-        // data.rows.forEach(row => {
-        //   var reshapedRow = {
-        //     answer_id: row.id,
-        //     body:row.body,
-        //     date:dateConverter(row.date_written),
-        //     answerer_name:row.answerer_name,
-        //     helpfulness:row.helpful
-        //   };
-        //   reshapedData.results.push(reshapedRow);
-        // });
         callback(null, reshapedData);
       }
     });

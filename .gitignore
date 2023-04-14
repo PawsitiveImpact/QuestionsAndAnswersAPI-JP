@@ -2,3 +2,5 @@ node_modules/
 rawCSVs/
 .csv
 .env
+aws/
+Dockerfile
