@@ -3,4 +3,3 @@ rawCSVs/
 .csv
 .env
 aws/
-Dockerfile

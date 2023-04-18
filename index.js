@@ -19,12 +19,8 @@ app.put('/qa/questions/:question_id/report', controllers.putReportQ);
 app.put('/qa/answers/:answer_id/helpful', controllers.putHelpfulA);
 app.put('/qa/answers/:answer_id/report', controllers.putReportA);
 
-
-
-
-
-
-
+// Testing / transform
+app.get('/test', controllers.test);
 
 
 app.listen(PORT, () => {

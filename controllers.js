@@ -100,5 +100,24 @@ module.exports = {
         res.json(data);
       }
     })
+  },
+
+  test: (req, res) => {
+    // This whole function is just to test whether I can use models.getAllPhotosForId to update a column in my answers table.
+    var ids = [1,2,3,4,5]
+    var returnArray = [];
+    ids.forEach(id => {
+      models.getAllPhotosForId(id, (err, data) => {
+        if(err){
+          console.log(err);
+        } else {
+          console.log("data for", id, " : ", data);
+          returnArray.push(data)
+          // res.json(data);
+        }
+      });
+    })
+   console.log("returnArray: ", returnArray);
+   return returnArray;
   }
 };

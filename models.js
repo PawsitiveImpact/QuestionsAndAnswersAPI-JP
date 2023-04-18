@@ -1,35 +1,36 @@
 const db = require('./dbconnection.js');
+const transform = require('./transform.js');
 
 module.exports = {
   getAllQuestions: (product_id, page, count, callback) => {
     var limitStart = page * count;
     var queryStr = `
                     SELECT
-                       q.id as question_id,
-                       q.body as question_body,
-                       q.date_written as question_date,
+                       q.question_id,
+                       q.question_body,
+                       q.question_date,
                        q.asker_name,
-                       q.helpful as question_helpfulness,
+                       q.question_helpfulness,
                        q.reported,
                        jsonb_object_agg(
-                        a.id,
+                        a.answer_id,
                           jsonb_build_object(
-                            'id', a.id,
+                            'id', a.answer_id,
                             'body', a.body,
-                            'date', a.date_written,
+                            'date', a.date,
                             'answerer_name', a.answerer_name,
-                            'helpfulness', a.helpful
+                            'helpfulness', a.helpfulness
                           )
-                       ) FILTER (WHERE q.id = a.question_id)
+                       ) FILTER (WHERE q.question_id = a.question_id)
                         as answers
                     FROM questions AS q
                     JOIN answers AS a
-                    ON q.id = a.question_id
+                    ON q.question_id = a.question_id
                     LEFT JOIN answers_photos AS p
-                    ON a.id = p.answer_id
+                    ON a.answer_id = p.answer_id
                     WHERE q.product_id = $1 AND q.reported = false
-                    GROUP BY q.id
-                    ORDER BY q.helpful DESC
+                    GROUP BY q.question_id
+                    ORDER BY q.question_helpfulness DESC
                     OFFSET $2
                     LIMIT $3
       `;
@@ -52,23 +53,20 @@ module.exports = {
   getAllAnswers: (question_id, page, count, callback) => {
     var limitStart = page * count;
     var queryStr = `SELECT
-                        a.id as answer_id,
+                        a.answer_id,
                         a.body,
-                        a.date_written as date,
+                        a.date,
                         a.answerer_name,
-                        a.helpful as helpfulness,
+                        a.helpfulness,
                         jsonb_agg(
-                          jsonb_build_object(
-                             'id', p.id,
-                             'url',p.url
-                          )
+                          p.photo_object
                         ) AS photos
                     FROM answers AS a
                     LEFT JOIN answers_photos AS p
-                    ON a.id = p.answer_id
+                    ON a.answer_id = p.answer_id
                     WHERE a.question_id = $1 AND a.reported = false
-                    GROUP BY a.id
-                    ORDER BY a.helpful DESC
+                    GROUP BY a.answer_id
+                    ORDER BY a.helpfulness DESC
                     OFFSET $2
                     LIMIT $3`;
     var values = [question_id, limitStart, count]
@@ -83,6 +81,24 @@ module.exports = {
           results:data.rows
         };
         callback(null, reshapedData);
+      }
+    });
+  },
+
+  getAllPhotosForId: (answer_id, callback) => {
+    var queryStr = `SELECT photo_object
+                    FROM answers_photos
+                    WHERE answer_id = $1`
+    var values = [answer_id];
+    db.query(queryStr, values, (err, data) => {
+      if (err) {
+        callback(err);
+      } else {
+        var photosArray = []
+        data.rows.forEach(row => {
+           photosArray.push(row.photo_object);
+        })
+        callback(null, photosArray);
       }
     });
   },
